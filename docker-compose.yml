@@ -1,0 +1,21 @@
+name: open-webui
+
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: always
+    cpus: 1
+    mem_limit: 3g
+    environment:
+      ENABLE_OLLAMA_API: false
+      ENABLE_OPENAI_API: true
+      WEBUI_NAME: "Chat 🐟"
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_API_BASE_URL: ${OPENAI_BASE_URL}
+      AUDIO_STT_ENGINE: web
+      HF_ENDPOINT: "https://hf-mirror.com/"
+    volumes:
+      - './data:/app/backend/data'
+    ports:
+      - '5090:8080'
