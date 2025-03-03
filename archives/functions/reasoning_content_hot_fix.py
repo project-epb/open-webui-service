@@ -1,39 +1,37 @@
 """
 title: (Filter) Hot fix for Deepseek-R1 reasoning_content block
-author: dragon-fish
-author: Deepseek-R1
-version: 0.4.0
+version: 0.4.1
+authors:
+    - dragon-fish <dragon-fish@qq.com>
+    - Deepseek-R1 <https://www.deepseek.com/>
+url: https://github.com/project-epb/open-webui-service
+description: |
+    修复 Deepseek-R1 非标准 API 接口返回的推理内容块（reasoning_content）未能正确渲染的问题。
+    Fix the problem that the reasoning content block (reasoning_content) returned by the non-standard API interface of Deepseek-R1 cannot be rendered correctly.
+
+    ## 使用须知 / README
+
+    本函数需要 open-webui >= 0.5.17
+    因为使用了新的 "stream" 方法来处理事件流。
+    安装后，勾选选择全局启用。开箱即用，没有额外的配置项。
+
+    This function requires open-webui >= 0.5.17
+    Because it uses the new "stream" method to process the event stream.
+    After installation, check the global enable option. Ready to use, no additional configuration items.
 """
 
-"""
-使用须知
-本函数需要 open-webui >= 0.5.17
-因为使用了新的 "stream" 方法来处理事件流。
-安装后，勾选选择全局启用。开箱即用，没有额外的配置项。
-"""
 
-"""
-README
-This function requires open-webui >= 0.5.17
-Because it uses the new "stream" method to process the event stream.
-After installation, check the global enable option. Ready to use, no additional configuration items.
-"""
-
-
-from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any, List
+from typing import Dict
 
 
 class Filter:
-    def __init__(self):
-        self.is_think_tag_open = False  # 状态
+    # 初始化状态
+    is_think_tag_open = False
 
-    def inlet(self, body: Dict) -> Dict:
-        """Pass-through pre-processing hook"""
-        return body
+    def __init__(self):
+        pass
 
     def stream(self, event: Dict) -> Dict:
-        """Stream processing hook with enhanced error handling"""
         try:
             if not (choices := event.get("choices")):
                 return event
@@ -76,7 +74,3 @@ class Filter:
             self.is_think_tag_open = False
         else:
             delta["content"] = content
-
-    def outlet(self, body: Dict) -> Dict:
-        """Pass-through post-processing hook"""
-        return body
