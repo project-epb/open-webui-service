@@ -6,16 +6,50 @@ services:
     container_name: open-webui
     restart: always
     cpus: 1
-    mem_limit: 3g
+    mem_limit: 2.5g
     environment:
       ENABLE_OLLAMA_API: false
       ENABLE_OPENAI_API: true
-      WEBUI_NAME: "Chat 🐟"
+      WEBUI_NAME: 'Chat 🐟'
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENAI_API_BASE_URL: ${OPENAI_BASE_URL}
       AUDIO_STT_ENGINE: web
-      HF_ENDPOINT: "https://hf-mirror.com/"
+      HF_ENDPOINT: 'https://hf-mirror.com/'
     volumes:
       - './data:/app/backend/data'
+    networks:
+      open-webui-network:
+        aliases:
+          - core.open-webui.local
     ports:
       - '5090:8080'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+
+  openai-edge-tts:
+    image: travisvn/openai-edge-tts:latest
+    container_name: openai-edge-tts
+    env_file:
+      - .env
+    restart: always
+    mem_limit: 0.5g
+    environment: # optionally define in -e argument when running docker command
+      API_KEY: ${TTS_API_KEY:-your_api_key_here}
+      PORT: ${TTS_PORT:-5050}
+      DEFAULT_VOICE: ${TTS_DEFAULT_VOICE:-en-US-AvaNeural}
+      DEFAULT_RESPONSE_FORMAT: ${TTS_DEFAULT_RESPONSE_FORMAT:-mp3}
+      DEFAULT_SPEED: ${TTS_DEFAULT_SPEED:-1.0}
+      DEFAULT_LANGUAGE: ${TTS_DEFAULT_LANGUAGE:-en-US}
+      REQUIRE_API_KEY: ${TTS_REQUIRE_API_KEY:-True}
+      REMOVE_FILTER: ${TTS_REMOVE_FILTER:-False}
+      EXPAND_API: ${TTS_EXPAND_API:-True}
+    networks:
+      open-webui-network:
+        aliases:
+          - tts.open-webui.local
+    ports:
+      - '5050:5050'
+
+networks:
+  open-webui-network:
+    name: open-webui-network
